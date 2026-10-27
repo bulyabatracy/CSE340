@@ -1,0 +1,12 @@
+<%- include('partials/header') %>
+
+<h1><%= title %></h1>
+<p>Browse service projects by category.</p>
+
+<ul class="category-list" role="list">
+    <% categories.forEach((category) => { %>
+        <li class="category-item"><%= category %></li>
+    <% }); %>
+</ul>
+
+<%- include('partials/footer') %>

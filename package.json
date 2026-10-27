@@ -1,11 +1,11 @@
 {
   "name": "cse340",
   "version": "1.0.0",
-  "description": "",
+  "description": "CSE 340 Nonprofit Network site",
   "main": "server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon",
+    "dev": "nodemon server.js",
     "start": "node server.js"
   },
   "repository": {
@@ -13,14 +13,14 @@
     "url": "git+https://github.com/bulyabatracy/CSE340.git"
   },
   "keywords": [],
-  "type": "module",
   "bugs": {
     "url": "https://github.com/bulyabatracy/CSE340/issues"
   },
   "homepage": "https://github.com/bulyabatracy/CSE340#readme",
   "dependencies": {
-    "ejs": "^7.0.2",
-    "express": "^5.3.0"
+    "dotenv": "^16.6.1",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
