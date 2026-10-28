@@ -185,9 +185,23 @@ h1 {
     color: var(--muted);
 }
 
-.card-image {
+/* Full-bleed image card variant */
+.card.has-image {
+    padding: 0;
+    overflow: hidden;
+}
+
+.card.has-image>.card-image {
+    width: 100%;
+    height: 160px;
+    display: block;
     object-fit: contain;
-    border-radius: 8px;
+    background: #eef6f2;
+    padding: 1rem;
+}
+
+.card.has-image>.card-body {
+    padding: 1.25rem 1.5rem 1.5rem;
 }
 
 /* =========================================================
@@ -248,17 +262,59 @@ h1 {
     margin: 0;
 }
 
-/* =========================================================
-   Responsive adjustments (mobile)
-   ========================================================= */
+/* ---- Nav toggle (hamburger) ---- */
+.nav-toggle {
+    display: none;
+    /* hidden on desktop */
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    padding: 0.5rem 0.6rem;
+    cursor: pointer;
+}
+
+.nav-toggle-bar {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #ffffff;
+    margin: 4px 0;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* Morph the bars into an X when open */
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+}
+
+/* ---- Mobile layout ---- */
 @media (max-width: 640px) {
-    .header-inner {
-        flex-direction: column;
-        align-items: flex-start;
+    .nav-toggle {
+        display: block;
     }
 
     .site-nav {
-        gap: 0.5rem 1rem;
+        display: none;
+        /* collapsed by default */
+        flex-direction: column;
+        width: 100%;
+        gap: 0.5rem;
+        padding-top: 0.75rem;
+        margin-top: 0.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .site-nav.is-open {
+        display: flex;
+        /* shown when toggled */
     }
 
     h1 {
@@ -275,7 +331,8 @@ h1 {
 
     .card,
     .button,
-    .site-nav a {
+    .site-nav a,
+    .nav-toggle-bar {
         transition: none;
     }
 
