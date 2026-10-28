@@ -5,7 +5,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Page title injected from the EJS variable -->
-    <title><%= title %></title>
+    <title>
+        <%= title %>
+    </title>
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="icon" href="/images/logo.png" />
 </head>
@@ -17,7 +19,14 @@
                 <img src="/images/logo.png" alt="Nonprofit Network logo" class="site-logo" width="40" height="40" />
                 <span class="site-name">Nonprofit Network</span>
             </a>
-            <nav class="site-nav" aria-label="Main navigation">
+
+            <button class="nav-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="Toggle navigation">
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+            </button>
+
+            <nav class="site-nav" id="primary-nav" aria-label="Main navigation">
                 <a href="/">Home</a>
                 <a href="/organizations">Organizations</a>
                 <a href="/projects">Projects</a>

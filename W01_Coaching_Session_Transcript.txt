@@ -1,0 +1,171 @@
+W01 COACHING SESSION
+Topic: Server-Side Programming
+Student: Tracy
+
+COACH:
+Welcome! Just to be clear from the start, this is a coaching session, not a test. It is perfectly okay—and even encouraged—to say 'I don't know' or 'I made a mistake.' That's the fastest way we'll learn today.
+
+STUDENT:
+Tracy
+
+COACH:
+Thanks, Tracy. Let's start with Express routing. In your own words, what is Express routing, and why is it useful in a server-side application?
+
+STUDENT:
+Express routing decides what code runs based on the URL and HTTP method. It is like a receptionist directing a visitor to the right place. Without routing, Node would give the same response instead of different pages.
+
+I used three routes:
+
+app.get('/', (req, res) => res.render('home'));
+app.get('/organizations', (req, res) => res.render('organizations'));
+app.get('/projects', (req, res) => res.render('projects'));
+
+COACH:
+Good explanation. Each route matches an HTTP method and path, then runs its handler. `req` represents the incoming request, `res` is the response object, and `res.render()` renders a view. Keeping routes separate makes the server's behavior easy to read and gives each page a clear URL.
+
+STUDENT:
+I chose three routes because it keeps the URLs and code clean, and each page can be handled independently.
+
+COACH:
+That makes sense. Separating routes supports readability and maintainability. What do you think would happen if you changed `app.get('/projects', ...)` to `app.post('/projects', ...)` but still tried to open `/projects` by typing it into your browser?
+
+STUDENT:
+The browser's address bar and navigation links normally send GET requests, so the route would not match and Express would likely show “Cannot GET /projects.” GET is for requesting a page, while POST is generally used to submit data.
+
+COACH:
+Exactly. The HTTP method is part of the route match, not just the path. Now let's move to JavaScript. Can you share a meaningful JavaScript function from your project and explain what it does?
+
+STUDENT:
+const getCategoriesPage = async (req, res) => {
+    const title = 'Service Project Categories';
+    const categories = [
+        'Environmental',
+        'Educational',
+        'Community Service',
+        'Health and Wellness'
+    ];
+    res.render('categories', { title, categories });
+};
+
+Most of my handlers are thin wrappers around `res.render` intentionally, because W01 focuses on routing and EJS rather than business logic. This function creates the categories data and passes it to the view.
+
+COACH:
+Good. `const` declares bindings that are not reassigned, the arrow function defines the handler, the parameters receive the request and response, and the array stores the category names. The object `{ title, categories }` uses JavaScript property shorthand, and the view can use those values as locals.
+
+STUDENT:
+The `async` keyword does not do anything useful in this function right now because there is no `await`; it makes the function return a resolved Promise. I would keep it for consistency if the course standards expect it, but in a code review I would recommend removing `async` from handlers that do not need it.
+
+COACH:
+That's a thoughtful distinction. An `async` function always returns a Promise, even if its body does not await anything. Removing unnecessary `async` can make the code's behavior clearer. Suppose the categories later came from a database instead of a hard-coded array. How might you change the function?
+
+STUDENT:
+const getCategoriesPage = async (req, res) => {
+    const title = 'Service Project Categories';
+    const categories = await Category.find().lean();
+    res.render('categories', { title, categories });
+};
+
+The route line `app.get('/categories', getCategoriesPage)`, the view setup, and the render call can stay the same. If the database returns objects such as `{ _id, name }`, the EJS template would need to display `category.name` rather than the whole category string. Since the database call can fail, I would use try/catch or rely on Express 5's rejected-Promise handling and error middleware.
+
+COACH:
+Correct. The `await` waits for the database query, and `.lean()` in Mongoose returns plain JavaScript objects rather than full Mongoose documents. Express 5 forwards rejected handler Promises to error handling automatically; Express 4 generally needs explicit asynchronous error handling. Let's discuss EJS now. Can you share a template snippet and explain how it uses data and partials?
+
+STUDENT:
+<%- include('partials/header') %>
+
+<h1><%= title %></h1>
+<p>Browse service projects by category.</p>
+
+<ul class="category-list" role="list">
+    <% categories.forEach((category) => { %>
+        <li class="category-item"><%= category %></li>
+    <% }); %>
+</ul>
+
+<%- include('partials/footer') %>
+
+`<%- include('partials/header') %>` pulls in `views/partials/header.ejs` and inserts the HTML without escaping it. I use `<%-` rather than `<%=` because otherwise the included HTML would be escaped and appear as text. The header partial uses `<%= title %>` in the `<title>` tag, so the title variable is passed through automatically.
+
+COACH:
+Good explanation. In EJS, `<% %>` runs JavaScript without outputting it, `<%= %>` outputs escaped content, and `<%- %>` outputs unescaped content. Includes need to insert the rendered partial markup as HTML, but unescaped output should be used carefully when the content is not trusted. The loop outputs one list item per category.
+
+STUDENT:
+I use separate header and footer partials because they keep shared markup in one place instead of making me synchronize copies across four files. The header partial also handles the title variable in one mechanism rather than requiring four hard-coded title tags.
+
+COACH:
+Exactly. Partials reduce duplication and make global changes easier. Now let's discuss frontend CSS. Can you share CSS from your project and explain how it makes the page responsive or improves the user experience?
+
+STUDENT:
+.category-list {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.category-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+}
+
+.site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+}
+
+.site-nav a {
+    color: #eef6f2;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.25rem 0;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.site-nav a:hover,
+.site-nav a:focus-visible {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+COACH:
+Your category list uses CSS Grid with automatic column sizing, while Flexbox allows the navigation links to wrap. The CSS variables help keep colors and design choices consistent. The hover and focus-visible styles provide feedback when users interact with navigation. Using a transparent border before hover also helps avoid a small layout shift when the border color changes.
+
+COACH:
+Why did you choose CSS Grid with `auto-fit` and `minmax(220px, 1fr)` for your category list instead of using fixed-width columns or manually setting the number of columns for different screen sizes?
+
+STUDENT:
+`repeat(auto-fit, minmax(220px, 1fr))` makes the browser compute the column count from the container width, at every width, continuously—instead of me picking a handful of breakpoints and hoping the layout looks right in between.
+
+Fixed-width columns such as `220px 220px 220px 220px` need roughly 950px including gaps. On a 600px phone, that can cause horizontal overflow. On a 1400px desktop, four 220px columns can leave a lot of empty space. I would need media queries to correct those problems.
+
+COACH:
+That's a strong explanation. `auto-fit` lets the browser fit as many columns as the available space permits, and `minmax(220px, 1fr)` sets a minimum column size while allowing columns to expand and share available space. One qualification: a 220px minimum can still overflow in a very narrow container, so a robust layout should account for that possibility.
+
+COACH:
+Your navigation CSS uses `:focus-visible` alongside `:hover`. Why is `:focus-visible` important for accessibility, especially for someone navigating your website using a keyboard instead of a mouse?
+
+STUDENT:
+A keyboard user has no cursor to tell them where they are—the focus indicator is their only “you are here” marker, so removing it makes the site unusable. `:focus-visible` lets the site show that indicator for keyboard users while sparing mouse users the persistent highlight that might tempt a developer to write `outline: none` and break accessibility for everyone.
+
+In this project it is implemented as a 3px gold outline offset 2px from the element, meeting WCAG 2.4.7 and roughly the 3:1 contrast bar of WCAG 2.4.11, and the navigation specifically mirrors its `:hover` state so keyboard users see the same feedback mouse users do.
+
+COACH:
+Excellent explanation. You connected the CSS technique to the experience of someone using the website. Keyboard users need to identify which link or control currently has focus, and a visible focus indicator helps them do that. Matching `:focus-visible` with `:hover` also provides comparable feedback for keyboard and mouse users.
+
+One standards clarification: WCAG 2.4.7, Focus Visible, is a Level AA criterion in WCAG 2.1. WCAG 2.4.11, Focus Not Obscured (Minimum), concerns whether focused content is hidden by author-created content; it is not the 3:1 focus-indicator contrast criterion. WCAG 2.2 criterion 2.4.13, Focus Appearance, addresses focus-indicator size and contrast at Level AAA.
+
+COACH — SESSION CONCLUSION:
+Tracy, we covered all four required topics:
+- Express routing: how HTTP methods and URL paths determine which handler runs.
+- JavaScript principles: functions, asynchronous operations, arrays, and database queries.
+- EJS templates and partials: passing data into views, rendering dynamic content, and reusing shared components.
+- Frontend CSS: responsive layouts, Flexbox, CSS Grid, variables, and focus indicators.
