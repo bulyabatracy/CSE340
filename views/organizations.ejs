@@ -1,30 +1,26 @@
 <%- include('partials/header') %>
 
-<h1><%= title %></h1>
-<p>Partner organizations in the Nonprofit Network.</p>
+    <h1>
+        <%= title %>
+    </h1>
+    <p>Partner organizations in the Nonprofit Network.</p>
 
-<section class="card-grid">
-    <article class="card has-image">
-        <img src="/images/green-roots.png" alt="Green Roots Alliance logo" class="card-image" />
-        <div class="card-body">
-            <h2>Green Roots Alliance</h2>
-            <p>Community-led reforestation and urban gardening projects.</p>
-        </div>
-    </article>
-    <article class="card has-image">
-        <img src="/images/bright-futures.png" alt="Bright Futures Tutoring logo" class="card-image" />
-        <div class="card-body">
-            <h2>Bright Futures Tutoring</h2>
-            <p>Free after-school tutoring for at-risk youth.</p>
-        </div>
-    </article>
-    <article class="card has-image">
-        <img src="/images/open-pantry.png" alt="Open Pantry Network logo" class="card-image" />
-        <div class="card-body">
-            <h2>Open Pantry Network</h2>
-            <p>Food security and nutrition education for local families.</p>
-        </div>
-    </article>
-</section>
+    <section class="card-grid">
+        <% organizations.forEach((org)=> { %>
+            <article class="card has-image">
+                <!-- Dynamically pull the image name from the database -->
+                <img src="/images/<%= org.logo_filename %>" alt="<%= org.name %> logo" class="card-image" />
+                <div class="card-body">
+                    <!-- Dynamically pull the name and description -->
+                    <h2>
+                        <%= org.name %>
+                    </h2>
+                    <p>
+                        <%= org.description %>
+                    </p>
+                </div>
+            </article>
+            <% }); %>
+    </section>
 
-<%- include('partials/footer') %>
+    <%- include('partials/footer') %>

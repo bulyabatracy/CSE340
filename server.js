@@ -3,47 +3,45 @@ import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+// 1. Import all three model functions
+import { getAllCategories } from './src/models/categories.js';
+import { getAllOrganizations } from './src/models/organizations.js';
+import { getAllProjects } from './src/models/projects.js';
+
 const NODE_ENV = process.env.NODE_ENV?.toLowerCase() || 'production';
 const PORT = process.env.PORT || 3000;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
-// Static middleware: serves /css and /images from public/
 app.use(express.static(path.join(__dirname, 'public')));
-
-// View engine: EJS, views in src/views
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-// ---- Route handlers (named const arrow functions, async) ----
 
 const getHomePage = async (req, res) => {
     const title = 'Home';
     res.render('home', { title });
 };
 
+// 2. Fetch organizations from the database
 const getOrganizationsPage = async (req, res) => {
     const title = 'Our Partner Organizations';
-    res.render('organizations', { title });
+    const organizations = await getAllOrganizations();
+    res.render('organizations', { title, organizations });
 };
 
+// 3. Fetch projects from the database
 const getProjectsPage = async (req, res) => {
     const title = 'Service Projects';
-    res.render('projects', { title });
+    const projects = await getAllProjects();
+    res.render('projects', { title, projects });
 };
 
 const getCategoriesPage = async (req, res) => {
     const title = 'Service Project Categories';
-    const categories = [
-        'Environmental',
-        'Educational',
-        'Community Service',
-        'Health and Wellness'
-    ];
+    const categories = await getAllCategories();
     res.render('categories', { title, categories });
 };
-
-// ---- Routes ----
 
 app.get('/', getHomePage);
 app.get('/organizations', getOrganizationsPage);
