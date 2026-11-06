@@ -8,7 +8,10 @@
     <ul class="category-list" role="list">
         <% categories.forEach((category)=> { %>
             <li class="category-item">
-                <%= category.name %>
+                <!-- Wrap the name in a link to the category details page -->
+                <a href="/categories/<%= category.category_id %>" class="text-link">
+                    <%= category.name %>
+                </a>
             </li>
             <% }); %>
     </ul>

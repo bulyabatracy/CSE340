@@ -3,10 +3,10 @@ import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// 1. Import all three model functions
-import { getAllCategories } from './src/models/categories.js';
-import { getAllOrganizations } from './src/models/organizations.js';
-import { getAllProjects } from './src/models/projects.js';
+// Import the Routers (We will create these in the next steps)
+import projectRoutes from './src/routes/projects.js';
+import categoryRoutes from './src/routes/categories.js';
+import organizationRoutes from './src/routes/organizations.js';
 
 const NODE_ENV = process.env.NODE_ENV?.toLowerCase() || 'production';
 const PORT = process.env.PORT || 3000;
@@ -14,39 +14,31 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
+// Static files and View engine
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-const getHomePage = async (req, res) => {
-    const title = 'Home';
-    res.render('home', { title });
-};
+// Home Route (This can stay here)
+app.get('/', (req, res) => {
+    res.render('home', { title: 'Home' });
+});
 
-// 2. Fetch organizations from the database
-const getOrganizationsPage = async (req, res) => {
-    const title = 'Our Partner Organizations';
-    const organizations = await getAllOrganizations();
-    res.render('organizations', { title, organizations });
-};
+// Use Routers
+app.use('/projects', projectRoutes);
+app.use('/categories', categoryRoutes);
+app.use('/organizations', organizationRoutes);
 
-// 3. Fetch projects from the database
-const getProjectsPage = async (req, res) => {
-    const title = 'Service Projects';
-    const projects = await getAllProjects();
-    res.render('projects', { title, projects });
-};
+// 404 Error Handler (Must be at the bottom, after all routes)
+app.use((req, res) => {
+    res.status(404).render('404', { title: 'Page Not Found' });
+});
 
-const getCategoriesPage = async (req, res) => {
-    const title = 'Service Project Categories';
-    const categories = await getAllCategories();
-    res.render('categories', { title, categories });
-};
-
-app.get('/', getHomePage);
-app.get('/organizations', getOrganizationsPage);
-app.get('/projects', getProjectsPage);
-app.get('/categories', getCategoriesPage);
+// 500 Error Handler
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).render('500', { title: 'Server Error' });
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running at http://127.0.0.1:${PORT}`);

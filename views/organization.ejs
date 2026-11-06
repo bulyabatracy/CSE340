@@ -1,0 +1,22 @@
+<%- include('partials/header') %>
+    <h1>
+        <%= organization.name %>
+    </h1>
+    <p>
+        <%= organization.description %>
+    </p>
+    <p><strong>Contact:</strong>
+        <%= organization.contact_email %>
+    </p>
+
+    <h3>Projects Hosted:</h3>
+    <ul class="category-list" role="list">
+        <% projects.forEach((project)=> { %>
+            <li class="category-item">
+                <a href="/projects/<%= project.project_id %>" class="text-link">
+                    <%= project.name %>
+                </a>
+            </li>
+            <% }); %>
+    </ul>
+    <%- include('partials/footer') %>

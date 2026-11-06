@@ -11,9 +11,11 @@
                 <!-- Dynamically pull the image name from the database -->
                 <img src="/images/<%= org.logo_filename %>" alt="<%= org.name %> logo" class="card-image" />
                 <div class="card-body">
-                    <!-- Dynamically pull the name and description -->
+                    <!-- Wrap the name in a link to the organization details page -->
                     <h2>
-                        <%= org.name %>
+                        <a href="/organizations/<%= org.organization_id %>" class="text-link">
+                            <%= org.name %>
+                        </a>
                     </h2>
                     <p>
                         <%= org.description %>

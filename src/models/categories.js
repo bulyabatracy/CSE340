@@ -6,4 +6,35 @@ const getAllCategories = async () => {
     return result.rows;
 };
 
-export { getAllCategories };
+// For the category details page
+const getCategoryDetails = async (categoryId) => {
+    const query = 'SELECT category_id, name FROM category WHERE category_id = $1';
+    const result = await db.query(query, [categoryId]);
+    return result.rows[0];
+};
+
+// For listing projects in a category
+const getProjectsByCategoryId = async (categoryId) => {
+    const query = `
+        SELECT p.project_id, p.name
+        FROM project p
+        JOIN project_category pc ON p.project_id = pc.project_id
+        WHERE pc.category_id = $1
+    `;
+    const result = await db.query(query, [categoryId]);
+    return result.rows;
+};
+
+// For displaying tags on a project page
+const getCategoriesByProjectId = async (projectId) => {
+    const query = `
+        SELECT c.category_id, c.name
+        FROM category c
+        JOIN project_category pc ON c.category_id = pc.category_id
+        WHERE pc.project_id = $1
+    `;
+    const result = await db.query(query, [projectId]);
+    return result.rows;
+};
+
+export { getAllCategories, getCategoryDetails, getProjectsByCategoryId, getCategoriesByProjectId };

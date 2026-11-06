@@ -340,3 +340,43 @@ h1 {
         transform: none;
     }
 }
+
+/* =========================================================
+   W03 Additions: Text Links & Category Tags
+   ========================================================= */
+
+/* Styled text links for list items */
+.text-link {
+    color: var(--primary-dark);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.text-link:hover {
+    text-decoration: underline;
+    color: var(--primary);
+}
+
+/* Project Category Tags */
+.category-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.tag {
+    background: var(--primary);
+    color: #ffffff;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.tag:hover {
+    background: var(--primary-dark);
+}
