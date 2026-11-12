@@ -3,7 +3,11 @@ import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Import the Routers (We will create these in the next steps)
+// 1. Import Session and Flash
+import session from 'express-session';
+import flash from 'connect-flash';
+
+// Import the Routers
 import projectRoutes from './src/routes/projects.js';
 import categoryRoutes from './src/routes/categories.js';
 import organizationRoutes from './src/routes/organizations.js';
@@ -19,7 +23,25 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Home Route (This can stay here)
+// 2. Body Parser (Required to read POST form data)
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// 3. Session and Flash Setup
+app.use(session({
+    secret: 'super-secret-key',
+    resave: false,
+    saveUninitialized: true
+}));
+app.use(flash());
+
+// 4. Pass flash messages to all EJS views
+app.use((req, res, next) => {
+    res.locals.messages = req.flash();
+    next();
+});
+
+// Home Route
 app.get('/', (req, res) => {
     res.render('home', { title: 'Home' });
 });

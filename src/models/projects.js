@@ -12,7 +12,6 @@ const getAllProjects = async () => {
     return result.rows;
 };
 
-// For the project details page
 const getProjectDetails = async (projectId) => {
     const query = `
         SELECT p.*, o.name AS organization_name
@@ -24,4 +23,38 @@ const getProjectDetails = async (projectId) => {
     return result.rows[0];
 };
 
-export { getAllProjects, getProjectDetails };
+const updateProjectCategories = async (projectId, categoryIds) => {
+    await db.query('DELETE FROM project_category WHERE project_id = $1', [projectId]);
+    if (categoryIds) {
+        const ids = Array.isArray(categoryIds) ? categoryIds : [categoryIds];
+        for (const catId of ids) {
+            await db.query('INSERT INTO project_category (project_id, category_id) VALUES ($1, $2)', [projectId, catId]);
+        }
+    }
+};
+
+// --- NEW FOR W04 ---
+
+const createProject = async (organization_id, name, description, project_date, location) => {
+    const query = `
+        INSERT INTO project (organization_id, name, description, project_date, location) 
+        VALUES ($1, $2, $3, $4, $5) RETURNING *
+    `;
+    const result = await db.query(query, [organization_id, name, description, project_date, location]);
+    return result.rows[0];
+};
+
+const updateProject = async (projectId, organization_id, name, description, project_date, location) => {
+    const query = `
+        UPDATE project 
+        SET organization_id = $1, name = $2, description = $3, project_date = $4, location = $5 
+        WHERE project_id = $6 RETURNING *
+    `;
+    const result = await db.query(query, [organization_id, name, description, project_date, location, projectId]);
+    return result.rows[0];
+};
+
+export { 
+    getAllProjects, getProjectDetails, updateProjectCategories, 
+    createProject, updateProject 
+};

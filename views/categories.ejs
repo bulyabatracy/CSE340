@@ -1,19 +1,26 @@
 <%- include('partials/header') %>
 
-    <h1>
-        <%= title %>
-    </h1>
-    <p>Browse service projects by category.</p>
+<h1><%= title %></h1>
+<p>Browse service projects by category.</p>
 
-    <ul class="category-list" role="list">
-        <% categories.forEach((category)=> { %>
-            <li class="category-item">
-                <!-- Wrap the name in a link to the category details page -->
-                <a href="/categories/<%= category.category_id %>" class="text-link">
-                    <%= category.name %>
-                </a>
-            </li>
-            <% }); %>
-    </ul>
+<!-- Flash Messages -->
+<% if (messages.success) { %>
+    <div class="alert alert-success"><%= messages.success %></div>
+<% } %>
 
-    <%- include('partials/footer') %>
+<div style="margin-bottom: 1.5rem;">
+    <a href="/categories/new-category" class="button">+ Add New Category</a>
+</div>
+
+<ul class="category-list" role="list">
+    <% categories.forEach((category)=> { %>
+        <li class="category-item" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="/categories/<%= category.category_id %>" class="text-link">
+                <%= category.name %>
+            </a>
+            <a href="/categories/edit-category/<%= category.category_id %>" style="font-size: 0.85rem; color: var(--muted); text-decoration: none;">Edit</a>
+        </li>
+    <% }); %>
+</ul>
+
+<%- include('partials/footer') %>

@@ -109,8 +109,6 @@ button:focus-visible {
 
 /* =========================================================
    Main content
-   - Uses `main.container` (specificity 0,1,1) so it beats
-     `.container` (0,1,0) and the padding actually applies.
    ========================================================= */
 main.container {
     padding: 2rem 1.25rem 3rem;
@@ -265,7 +263,6 @@ h1 {
 /* ---- Nav toggle (hamburger) ---- */
 .nav-toggle {
     display: none;
-    /* hidden on desktop */
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 8px;
@@ -303,7 +300,6 @@ h1 {
 
     .site-nav {
         display: none;
-        /* collapsed by default */
         flex-direction: column;
         width: 100%;
         gap: 0.5rem;
@@ -314,7 +310,6 @@ h1 {
 
     .site-nav.is-open {
         display: flex;
-        /* shown when toggled */
     }
 
     h1 {
@@ -344,8 +339,6 @@ h1 {
 /* =========================================================
    W03 Additions: Text Links & Category Tags
    ========================================================= */
-
-/* Styled text links for list items */
 .text-link {
     color: var(--primary-dark);
     text-decoration: none;
@@ -358,7 +351,6 @@ h1 {
     color: var(--primary);
 }
 
-/* Project Category Tags */
 .category-tags {
     display: flex;
     flex-wrap: wrap;
@@ -379,4 +371,84 @@ h1 {
 
 .tag:hover {
     background: var(--primary-dark);
+}
+
+/* =========================================================
+   W04 Additions: Forms and Alerts
+   ========================================================= */
+
+/* Forms */
+.form {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    max-width: 500px;
+    margin-top: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+}
+
+/* Combined Input and Select styling for consistency */
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+    background: #ffffff;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(31, 111, 92, 0.2);
+}
+
+/* Secondary Button (Cancel) */
+.button-secondary {
+    background: #6c757d;
+    color: #ffffff;
+}
+
+.button-secondary:hover {
+    background: #5a6268;
+}
+
+/* Alerts (Flash Messages & Validation Errors) */
+.alert {
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert ul {
+    margin: 0;
+    padding-left: 1.5rem;
 }

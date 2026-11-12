@@ -5,13 +5,16 @@
     </h1>
     <p>Partner organizations in the Nonprofit Network.</p>
 
+    <!-- NEW: Add Button -->
+    <div style="margin-bottom: 1.5rem;">
+        <a href="/organizations/new-organization" class="button">+ Add New Organization</a>
+    </div>
+
     <section class="card-grid">
         <% organizations.forEach((org)=> { %>
             <article class="card has-image">
-                <!-- Dynamically pull the image name from the database -->
                 <img src="/images/<%= org.logo_filename %>" alt="<%= org.name %> logo" class="card-image" />
                 <div class="card-body">
-                    <!-- Wrap the name in a link to the organization details page -->
                     <h2>
                         <a href="/organizations/<%= org.organization_id %>" class="text-link">
                             <%= org.name %>
@@ -20,6 +23,9 @@
                     <p>
                         <%= org.description %>
                     </p>
+                    <!-- NEW: Edit Link -->
+                    <a href="/organizations/edit-organization/<%= org.organization_id %>"
+                        style="font-size: 0.85rem; color: var(--muted);">Edit</a>
                 </div>
             </article>
             <% }); %>
