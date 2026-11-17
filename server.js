@@ -7,10 +7,8 @@ import { fileURLToPath } from 'node:url';
 import session from 'express-session';
 import flash from 'connect-flash';
 
-// Import the Routers
-import projectRoutes from './src/routes/projects.js';
-import categoryRoutes from './src/routes/categories.js';
-import organizationRoutes from './src/routes/organizations.js';
+// Import the Router
+import routes from './src/routes/index.js';
 
 const NODE_ENV = process.env.NODE_ENV?.toLowerCase() || 'production';
 const PORT = process.env.PORT || 3000;
@@ -46,10 +44,8 @@ app.get('/', (req, res) => {
     res.render('home', { title: 'Home' });
 });
 
-// Use Routers
-app.use('/projects', projectRoutes);
-app.use('/categories', categoryRoutes);
-app.use('/organizations', organizationRoutes);
+// Use Routes
+app.use('/', routes);
 
 // 404 Error Handler (Must be at the bottom, after all routes)
 app.use((req, res) => {
