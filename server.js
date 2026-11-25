@@ -9,6 +9,7 @@ import flash from 'connect-flash';
 
 // Import the Router
 import routes from './src/routes/index.js';
+import { ensureUsersTableAndAdmin } from './src/models/users.js';
 
 const NODE_ENV = process.env.NODE_ENV?.toLowerCase() || 'production';
 const PORT = process.env.PORT || 3000;
@@ -27,15 +28,21 @@ app.use(express.json());
 
 // 3. Session and Flash Setup
 app.use(session({
-    secret: 'super-secret-key',
+    secret: process.env.SESSION_SECRET || 'development-session-secret',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: NODE_ENV === 'production',
+        sameSite: 'lax'
+    }
 }));
 app.use(flash());
 
-// 4. Pass flash messages to all EJS views
+// 4. Pass session and flash messages to all EJS views
 app.use((req, res, next) => {
     res.locals.messages = req.flash();
+    res.locals.currentUser = req.session.user || null;
     next();
 });
 
@@ -58,7 +65,17 @@ app.use((err, req, res, next) => {
     res.status(500).render('500', { title: 'Server Error' });
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running at http://127.0.0.1:${PORT}`);
-    console.log(`Environment: ${NODE_ENV}`);
-});
+const startServer = async () => {
+    try {
+        await ensureUsersTableAndAdmin();
+        app.listen(PORT, () => {
+            console.log(`Server is running at http://127.0.0.1:${PORT}`);
+            console.log(`Environment: ${NODE_ENV}`);
+        });
+    } catch (error) {
+        console.error('Database initialization failed:', error);
+        process.exit(1);
+    }
+};
+
+startServer();

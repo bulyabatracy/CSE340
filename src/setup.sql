@@ -2,6 +2,29 @@ DROP TABLE IF EXISTS project_category;
 DROP TABLE IF EXISTS project;
 DROP TABLE IF EXISTS category;
 DROP TABLE IF EXISTS organization;
+DROP TABLE IF EXISTS users;
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'user'
+);
+INSERT INTO users (
+        first_name,
+        last_name,
+        email,
+        password_hash,
+        role
+    )
+VALUES (
+        'CSE340',
+        'Administrator',
+        'admin@example.com',
+        '$2b$10$BDH8dcJiUGGBqu5hMREqYeRTbKiR0pYMJSoK9Q06M0Fi8kdNfsrc.',
+        'admin'
+    );
 CREATE TABLE organization (
     organization_id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,

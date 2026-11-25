@@ -1,0 +1,30 @@
+<%- include('partials/header') %>
+    <h1>
+        <%= title %>
+    </h1>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+            <tr>
+                <th style="text-align:left; padding:.75rem; border-bottom:2px solid var(--border);">Name</th>
+                <th style="text-align:left; padding:.75rem; border-bottom:2px solid var(--border);">Email</th>
+                <th style="text-align:left; padding:.75rem; border-bottom:2px solid var(--border);">Role</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% users.forEach(user=> { %>
+                <tr>
+                    <td style="padding:.75rem; border-bottom:1px solid var(--border);">
+                        <%= user.first_name %>
+                            <%= user.last_name %>
+                    </td>
+                    <td style="padding:.75rem; border-bottom:1px solid var(--border);">
+                        <%= user.email %>
+                    </td>
+                    <td style="padding:.75rem; border-bottom:1px solid var(--border);">
+                        <%= user.role %>
+                    </td>
+                </tr>
+                <% }) %>
+        </tbody>
+    </table>
+    <%- include('partials/footer') %>

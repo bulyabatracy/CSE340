@@ -1,0 +1,27 @@
+<%- include('partials/header') %>
+    <h1>
+        <%= title %>
+    </h1>
+    <% if (locals.errors) { %>
+        <div class="alert alert-error">
+            <ul>
+                <% errors.forEach(error=> { %><li>
+                        <%= error %>
+                    </li>
+                    <% }) %>
+            </ul>
+        </div>
+        <% } %>
+            <% if (messages.success) { %>
+                <div class="alert alert-success">
+                    <%= messages.success %>
+                </div>
+                <% } %>
+                    <form action="/login" method="POST" class="form">
+                        <div class="form-group"><label for="email">Email</label><input id="email" name="email"
+                                type="email" value="<%= email %>" required></div>
+                        <div class="form-group"><label for="password">Password</label><input id="password"
+                                name="password" type="password" required></div>
+                        <button type="submit" class="button">Log In</button>
+                    </form>
+                    <%- include('partials/footer') %>

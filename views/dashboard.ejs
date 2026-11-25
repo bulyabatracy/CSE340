@@ -1,0 +1,22 @@
+<%- include('partials/header') %>
+    <h1>
+        <%= title %>
+    </h1>
+    <% if (messages.success) { %>
+        <div class="alert alert-success">
+            <%= messages.success %>
+        </div>
+        <% } %>
+            <% if (messages.error) { %>
+                <div class="alert alert-error">
+                    <%= messages.error %>
+                </div>
+                <% } %>
+                    <p>Welcome, <%= currentUser.firstName %>
+                            <%= currentUser.lastName %>.</p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <% if (currentUser.role==='admin' ) { %>
+                            <a href="/users" class="button">View Registered Users</a>
+                            <% } %>
+                    </div>
+                    <%- include('partials/footer') %>

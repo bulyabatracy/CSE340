@@ -1,26 +1,36 @@
 <%- include('partials/header') %>
 
-<h1><%= title %></h1>
-<p>Browse service projects by category.</p>
+    <h1>
+        <%= title %>
+    </h1>
+    <p>Browse service projects by category.</p>
 
-<!-- Flash Messages -->
-<% if (messages.success) { %>
-    <div class="alert alert-success"><%= messages.success %></div>
-<% } %>
+    <!-- Flash Messages -->
+    <% if (messages.success) { %>
+        <div class="alert alert-success">
+            <%= messages.success %>
+        </div>
+        <% } %>
 
-<div style="margin-bottom: 1.5rem;">
-    <a href="/categories/new-category" class="button">+ Add New Category</a>
-</div>
+            <% if (currentUser && currentUser.role==='admin' ) { %>
+                <div style="margin-bottom: 1.5rem;">
+                    <a href="/categories/new-category" class="button">+ Add New Category</a>
+                </div>
+                <% } %>
 
-<ul class="category-list" role="list">
-    <% categories.forEach((category)=> { %>
-        <li class="category-item" style="display: flex; justify-content: space-between; align-items: center;">
-            <a href="/categories/<%= category.category_id %>" class="text-link">
-                <%= category.name %>
-            </a>
-            <a href="/categories/edit-category/<%= category.category_id %>" style="font-size: 0.85rem; color: var(--muted); text-decoration: none;">Edit</a>
-        </li>
-    <% }); %>
-</ul>
+                    <ul class="category-list" role="list">
+                        <% categories.forEach((category)=> { %>
+                            <li class="category-item"
+                                style="display: flex; justify-content: space-between; align-items: center;">
+                                <a href="/categories/<%= category.category_id %>" class="text-link">
+                                    <%= category.name %>
+                                </a>
+                                <% if (currentUser && currentUser.role==='admin' ) { %>
+                                    <a href="/categories/edit-category/<%= category.category_id %>"
+                                        style="font-size: 0.85rem; color: var(--muted); text-decoration: none;">Edit</a>
+                                    <% } %>
+                            </li>
+                            <% }); %>
+                    </ul>
 
-<%- include('partials/footer') %>
+                    <%- include('partials/footer') %>
