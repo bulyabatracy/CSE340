@@ -17,6 +17,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
+if (NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+}
+
 // Static files and View engine
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');

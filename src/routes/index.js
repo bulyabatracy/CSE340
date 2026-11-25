@@ -25,7 +25,7 @@ router.get('/register', showRegisterPage);
 router.post('/register', asyncHandler(processRegistration));
 router.get('/login', showLoginPage);
 router.post('/login', asyncHandler(processLogin));
-router.get('/logout', processLogout);
+router.post('/logout', processLogout);
 router.get('/dashboard', requireLogin, showDashboard);
 router.get('/users', requireRole('admin'), asyncHandler(showUsersPage));
 

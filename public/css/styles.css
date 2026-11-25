@@ -107,6 +107,21 @@ button:focus-visible {
     border-bottom-color: var(--accent);
 }
 
+.nav-link-button {
+    background: transparent;
+    border: 0;
+    color: #eef6f2;
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.25rem 0;
+}
+
+.nav-link-button:hover,
+.nav-link-button:focus-visible {
+    color: var(--accent);
+}
+
 /* =========================================================
    Main content
    ========================================================= */

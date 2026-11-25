@@ -5,41 +5,54 @@
     </h1>
     <p>Browse all service projects.</p>
 
-    <!-- Add project creation link for admins only -->
-    <% if (currentUser && currentUser.role==='admin' ) { %>
-        <div style="margin-bottom: 1.5rem;"><a href="/projects/new-project" class="button">+ Add New Project</a></div>
+    <% if (messages.success) { %>
+        <div class="alert alert-success">
+            <%= messages.success %>
+        </div>
         <% } %>
+            <% if (messages.error) { %>
+                <div class="alert alert-error">
+                    <%= messages.error %>
+                </div>
+                <% } %>
 
-            <section class="card-grid">
-                <% projects.forEach((project)=> { %>
-                    <article class="card">
-                        <div class="card-body">
-                            <!-- 1. Project name links to the project details page -->
-                            <h2>
-                                <a href="/projects/<%= project.project_id %>" class="text-link">
-                                    <%= project.name %>
-                                </a>
-                            </h2>
+                    <!-- Add project creation link for admins only -->
+                    <% if (currentUser && currentUser.role==='admin' ) { %>
+                        <div style="margin-bottom: 1.5rem;"><a href="/projects/new-project" class="button">+ Add New
+                                Project</a></div>
+                        <% } %>
 
-                            <!-- 2. Organization name links to the organization details page -->
-                            <p><strong>Organization:</strong>
-                                <a href="/organizations/<%= project.organization_id %>" class="text-link">
-                                    <%= project.organization_name %>
-                                </a>
-                            </p>
-                            <p>
-                                <%= project.description %>
-                            </p>
+                            <section class="card-grid">
+                                <% projects.forEach((project)=> { %>
+                                    <article class="card">
+                                        <div class="card-body">
+                                            <!-- 1. Project name links to the project details page -->
+                                            <h2>
+                                                <a href="/projects/<%= project.project_id %>" class="text-link">
+                                                    <%= project.name %>
+                                                </a>
+                                            </h2>
 
-                            <p><strong>Date:</strong>
-                                <%= project.project_date.toLocaleDateString() %>
-                            </p>
-                            <p><strong>Location:</strong>
-                                <%= project.location %>
-                            </p>
-                        </div>
-                    </article>
-                    <% }); %>
-            </section>
+                                            <!-- 2. Organization name links to the organization details page -->
+                                            <p><strong>Organization:</strong>
+                                                <a href="/organizations/<%= project.organization_id %>"
+                                                    class="text-link">
+                                                    <%= project.organization_name %>
+                                                </a>
+                                            </p>
+                                            <p>
+                                                <%= project.description %>
+                                            </p>
 
-            <%- include('partials/footer') %>
+                                            <p><strong>Date:</strong>
+                                                <%= project.project_date.toLocaleDateString() %>
+                                            </p>
+                                            <p><strong>Location:</strong>
+                                                <%= project.location %>
+                                            </p>
+                                        </div>
+                                    </article>
+                                    <% }); %>
+                            </section>
+
+                            <%- include('partials/footer') %>

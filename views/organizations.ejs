@@ -5,34 +5,46 @@
     </h1>
     <p>Partner organizations in the Nonprofit Network.</p>
 
-    <!-- NEW: Add Button -->
-    <% if (currentUser && currentUser.role==='admin' ) { %>
-        <div style="margin-bottom: 1.5rem;">
-            <a href="/organizations/new-organization" class="button">+ Add New Organization</a>
+    <% if (messages.success) { %>
+        <div class="alert alert-success">
+            <%= messages.success %>
         </div>
         <% } %>
+            <% if (messages.error) { %>
+                <div class="alert alert-error">
+                    <%= messages.error %>
+                </div>
+                <% } %>
 
-            <section class="card-grid">
-                <% organizations.forEach((org)=> { %>
-                    <article class="card has-image">
-                        <img src="/images/<%= org.logo_filename %>" alt="<%= org.name %> logo" class="card-image" />
-                        <div class="card-body">
-                            <h2>
-                                <a href="/organizations/<%= org.organization_id %>" class="text-link">
-                                    <%= org.name %>
-                                </a>
-                            </h2>
-                            <p>
-                                <%= org.description %>
-                            </p>
-                            <!-- NEW: Edit Link -->
-                            <% if (currentUser && currentUser.role==='admin' ) { %>
-                                <a href="/organizations/edit-organization/<%= org.organization_id %>"
-                                    style="font-size: 0.85rem; color: var(--muted);">Edit</a>
-                                <% } %>
+                    <!-- NEW: Add Button -->
+                    <% if (currentUser && currentUser.role==='admin' ) { %>
+                        <div style="margin-bottom: 1.5rem;">
+                            <a href="/organizations/new-organization" class="button">+ Add New Organization</a>
                         </div>
-                    </article>
-                    <% }); %>
-            </section>
+                        <% } %>
 
-            <%- include('partials/footer') %>
+                            <section class="card-grid">
+                                <% organizations.forEach((org)=> { %>
+                                    <article class="card has-image">
+                                        <img src="/images/<%= org.logo_filename %>" alt="<%= org.name %> logo"
+                                            class="card-image" />
+                                        <div class="card-body">
+                                            <h2>
+                                                <a href="/organizations/<%= org.organization_id %>" class="text-link">
+                                                    <%= org.name %>
+                                                </a>
+                                            </h2>
+                                            <p>
+                                                <%= org.description %>
+                                            </p>
+                                            <!-- NEW: Edit Link -->
+                                            <% if (currentUser && currentUser.role==='admin' ) { %>
+                                                <a href="/organizations/edit-organization/<%= org.organization_id %>"
+                                                    style="font-size: 0.85rem; color: var(--muted);">Edit</a>
+                                                <% } %>
+                                        </div>
+                                    </article>
+                                    <% }); %>
+                            </section>
+
+                            <%- include('partials/footer') %>
