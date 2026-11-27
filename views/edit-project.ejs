@@ -36,7 +36,7 @@
                 <div class="form-group">
                     <label for="description">Description:</label>
                     <input type="text" id="description" name="description" value="<%= project.description || '' %>"
-                        required pattern=".*\S.*">
+                        required maxlength="5000" pattern=".*\S.*">
                 </div>
                 <div class="form-group">
                     <label for="project_date">Date:</label>
@@ -46,7 +46,7 @@
                 <div class="form-group">
                     <label for="location">Location:</label>
                     <input type="text" id="location" name="location" value="<%= project.location || '' %>" required
-                        pattern=".*\S.*">
+                        maxlength="255" pattern=".*\S.*">
                 </div>
                 <button type="submit" class="button">Update Project</button>
                 <a href="/projects/<%= project.project_id %>" class="button button-secondary">Cancel</a>

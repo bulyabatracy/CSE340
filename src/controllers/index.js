@@ -12,14 +12,7 @@ import {
 } from '../models/projects.js';
 import { getCategoriesByProjectId, getAllCategories as getAllCategoriesForProject } from '../models/categories.js';
 import { getAllOrganizations as getAllOrganizationsForProject } from '../models/organizations.js';
-
-const trimField = value => typeof value === 'string' ? value.trim() : '';
-const isValidEmail = value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-const isValidDate = value => {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-    const date = new Date(`${value}T00:00:00Z`);
-    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
-};
+import { validationResult } from 'express-validator';
 
 const showCategoriesPage = async (req, res) => {
     const categories = await getAllCategories();
@@ -43,12 +36,8 @@ const showNewCategoryForm = async (req, res) => {
 };
 
 const processNewCategory = async (req, res) => {
-    const name = req.body.name ? req.body.name.trim() : '';
-    const errors = [];
-
-    if (!name || name.length < 3 || name.length > 100) {
-        errors.push('Category name must be between 3 and 100 characters.');
-    }
+    const name = req.body.name;
+    const errors = validationResult(req).array().map(error => error.msg);
 
     if (errors.length > 0) {
         return res.render('new-category', { title: 'New Category', errors, name });
@@ -69,12 +58,8 @@ const showEditCategoryForm = async (req, res) => {
 
 const processEditCategory = async (req, res) => {
     const categoryId = req.params.id;
-    const name = req.body.name ? req.body.name.trim() : '';
-    const errors = [];
-
-    if (!name || name.length < 3 || name.length > 100) {
-        errors.push('Category name must be between 3 and 100 characters.');
-    }
+    const name = req.body.name;
+    const errors = validationResult(req).array().map(error => error.msg);
 
     if (errors.length > 0) {
         return res.render('edit-category', {
@@ -111,16 +96,11 @@ const showNewOrganizationForm = async (req, res) => {
 };
 
 const processNewOrganization = async (req, res) => {
-    const name = trimField(req.body.name);
-    const description = trimField(req.body.description);
-    const contact_email = trimField(req.body.contact_email);
-    const logo_filename = trimField(req.body.logo_filename);
-    const errors = [];
-
-    if (!name || name.length < 3 || name.length > 100) errors.push('Name must be between 3 and 100 characters.');
-    if (!description) errors.push('Description is required.');
-    if (!isValidEmail(contact_email) || contact_email.length > 254) errors.push('Enter a valid contact email.');
-    if (!logo_filename || logo_filename.length > 255) errors.push('Logo filename is required and must be 255 characters or fewer.');
+    const name = req.body.name;
+    const description = req.body.description;
+    const contact_email = req.body.contact_email;
+    const logo_filename = 'logo.png';
+    const errors = validationResult(req).array().map(error => error.msg);
 
     if (errors.length > 0) {
         return res.render('new-organization', { title: 'New Organization', errors, org: { name, description, contact_email, logo_filename } });
@@ -141,16 +121,11 @@ const showEditOrganizationForm = async (req, res) => {
 
 const processEditOrganization = async (req, res) => {
     const orgId = req.params.id;
-    const name = trimField(req.body.name);
-    const description = trimField(req.body.description);
-    const contact_email = trimField(req.body.contact_email);
-    const logo_filename = trimField(req.body.logo_filename);
-    const errors = [];
-
-    if (!name || name.length < 3 || name.length > 100) errors.push('Name must be between 3 and 100 characters.');
-    if (!description) errors.push('Description is required.');
-    if (!isValidEmail(contact_email) || contact_email.length > 254) errors.push('Enter a valid contact email.');
-    if (!logo_filename || logo_filename.length > 255) errors.push('Logo filename is required and must be 255 characters or fewer.');
+    const name = req.body.name;
+    const description = req.body.description;
+    const contact_email = req.body.contact_email;
+    const logo_filename = req.body.logo_filename;
+    const errors = validationResult(req).array().map(error => error.msg);
 
     if (errors.length > 0) {
         return res.render('edit-organization', {
@@ -210,19 +185,13 @@ const showNewProjectForm = async (req, res) => {
 };
 
 const processNewProject = async (req, res) => {
-    const organization_id = trimField(req.body.organization_id);
-    const name = trimField(req.body.name);
-    const description = trimField(req.body.description);
-    const project_date = trimField(req.body.project_date);
-    const location = trimField(req.body.location);
-    const errors = [];
+    const organization_id = req.body.organization_id;
+    const name = req.body.name;
+    const description = req.body.description;
+    const project_date = req.body.project_date;
+    const location = req.body.location;
+    const errors = validationResult(req).array().map(error => error.msg);
     const organizations = await getAllOrganizationsForProject();
-
-    if (!Number.isInteger(Number(organization_id)) || Number(organization_id) < 1) errors.push('Organization is required.');
-    if (!name || name.length < 3 || name.length > 100) errors.push('Name must be 3-100 characters.');
-    if (!description) errors.push('Description is required.');
-    if (!isValidDate(project_date)) errors.push('Enter a valid project date.');
-    if (!location) errors.push('Location is required.');
 
     if (errors.length > 0) {
         return res.render('new-project', { title: 'New Project', errors, organizations, project: { organization_id, name, description, project_date, location } });
@@ -247,19 +216,13 @@ const showEditProjectForm = async (req, res) => {
 
 const processEditProject = async (req, res) => {
     const projectId = req.params.id;
-    const organization_id = trimField(req.body.organization_id);
-    const name = trimField(req.body.name);
-    const description = trimField(req.body.description);
-    const project_date = trimField(req.body.project_date);
-    const location = trimField(req.body.location);
-    const errors = [];
+    const organization_id = req.body.organization_id;
+    const name = req.body.name;
+    const description = req.body.description;
+    const project_date = req.body.project_date;
+    const location = req.body.location;
+    const errors = validationResult(req).array().map(error => error.msg);
     const organizations = await getAllOrganizationsForProject();
-
-    if (!Number.isInteger(Number(organization_id)) || Number(organization_id) < 1) errors.push('Organization is required.');
-    if (!name || name.length < 3 || name.length > 100) errors.push('Name must be 3-100 characters.');
-    if (!description) errors.push('Description is required.');
-    if (!isValidDate(project_date)) errors.push('Enter a valid project date.');
-    if (!location) errors.push('Location is required.');
 
     if (errors.length > 0) {
         return res.render('edit-project', {
