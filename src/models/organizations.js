@@ -21,7 +21,7 @@ const getProjectsByOrganizationId = async (orgId) => {
 };
 
 // NEW FOR W04: Create Organization
-const createOrganization = async (name, description, contact_email, logo_filename) => {
+const createOrganization = async (name, description, contact_email, logo_filename = 'logo.png') => {
     const query = `
         INSERT INTO organization (name, description, contact_email, logo_filename) 
         VALUES ($1, $2, $3, $4) RETURNING *

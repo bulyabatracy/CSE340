@@ -173,6 +173,17 @@ const showAssignCategoryForm = async (req, res) => {
 const processAssignCategoryForm = async (req, res) => {
     const projectId = req.params.id;
     const categoryIds = req.body.categoryIds;
+    const errors = validationResult(req).array().map(error => error.msg);
+
+    if (errors.length > 0) {
+        const project = await getProjectDetails(projectId);
+        const categories = await getAllCategoriesForProject();
+        const selected = categoryIds ? (Array.isArray(categoryIds) ? categoryIds : [categoryIds]) : [];
+        const assignedIds = selected.map(id => Number(id)).filter(id => Number.isInteger(id));
+        return res.render('assign-categories', {
+            title: 'Assign Categories', project, categories, assignedIds, errors
+        });
+    }
 
     await updateProjectCategories(projectId, categoryIds);
     req.flash('success', 'Categories assigned successfully!');

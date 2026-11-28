@@ -3,7 +3,9 @@ import asyncHandler from '../utils/asyncHandler.js';
 import { requireLogin, requireRole } from '../middleware/auth.js';
 import {
     validateCategoryFields, validateOrganizationFields,
-    validateOrganizationImage, validateProjectFields
+    validateOrganizationImage, validateProjectFields,
+    validateRegistrationFields, validateLoginFields,
+    validateCategoryAssignment
 } from '../middleware/validation.js';
 import {
     showRegisterPage, processRegistration,
@@ -26,9 +28,9 @@ import {
 const router = express.Router();
 
 router.get('/register', showRegisterPage);
-router.post('/register', asyncHandler(processRegistration));
+router.post('/register', validateRegistrationFields, asyncHandler(processRegistration));
 router.get('/login', showLoginPage);
-router.post('/login', asyncHandler(processLogin));
+router.post('/login', validateLoginFields, asyncHandler(processLogin));
 router.post('/logout', processLogout);
 router.get('/dashboard', requireLogin, showDashboard);
 router.get('/users', requireRole('admin'), asyncHandler(showUsersPage));
@@ -53,7 +55,7 @@ router.post('/projects/new-project', requireRole('admin'), validateProjectFields
 router.get('/projects/edit-project/:id', requireRole('admin'), asyncHandler(showEditProjectForm));
 router.post('/projects/edit-project/:id', requireRole('admin'), validateProjectFields, asyncHandler(processEditProject));
 router.get('/projects/:id/assign-categories', requireRole('admin'), asyncHandler(showAssignCategoryForm));
-router.post('/projects/:id/assign-categories', requireRole('admin'), asyncHandler(processAssignCategoryForm));
+router.post('/projects/:id/assign-categories', requireRole('admin'), validateCategoryAssignment, asyncHandler(processAssignCategoryForm));
 router.get('/projects/:id', asyncHandler(showProjectDetailsPage));
 
 export default router;

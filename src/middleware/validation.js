@@ -35,6 +35,75 @@ const validateOrganizationImage = [
         .isLength({ max: 255 }).withMessage('Logo filename must be 255 characters or fewer.')
 ];
 
+const validateRegistrationFields = [
+    body('firstName')
+        .trim()
+        .notEmpty().withMessage('First name is required.')
+        .bail()
+        .isLength({ min: 1, max: 50 }).withMessage('First name must be 50 characters or fewer.'),
+    body('lastName')
+        .trim()
+        .notEmpty().withMessage('Last name is required.')
+        .bail()
+        .isLength({ min: 1, max: 50 }).withMessage('Last name must be 50 characters or fewer.'),
+    body('email')
+        .trim()
+        .notEmpty().withMessage('Email is required.')
+        .bail()
+        .isEmail().withMessage('Enter a valid email address.')
+        .isLength({ max: 254 }).withMessage('Email must be 254 characters or fewer.'),
+    body('password')
+        .notEmpty().withMessage('Password is required.')
+        .bail()
+        .isLength({ min: 8, max: 128 }).withMessage('Password must be at least 8 characters.')
+];
+
+const validateLoginFields = [
+    body('email')
+        .trim()
+        .notEmpty().withMessage('Email is required.')
+        .bail()
+        .isEmail().withMessage('Enter a valid email address.'),
+    body('password')
+        .notEmpty().withMessage('Password is required.')
+];
+
+const validateCategoryAssignment = [
+    body('categoryIds')
+        .custom((value) => {
+            if (value === undefined) return true;
+            const ids = Array.isArray(value) ? value : [value];
+            return ids.every(id => /^\d+$/.test(String(id)));
+        }).withMessage('Select valid categories.')
+];
+
+const validateAuthFields = [
+    body('email')
+        .trim()
+        .notEmpty().withMessage('Email is required.')
+        .bail()
+        .isEmail().withMessage('Enter a valid email address.')
+        .isLength({ max: 254 }).withMessage('Email must be 254 characters or fewer.'),
+    body('password')
+        .trim()
+        .notEmpty().withMessage('Password is required.')
+        .bail()
+        .isLength({ min: 6 }).withMessage('Password must be at least 6 characters long.')
+];
+
+const validateCategoryAssignmentFields = [
+    body('category_id')
+        .trim()
+        .notEmpty().withMessage('Category is required.')
+        .bail()
+        .isInt({ min: 1 }).withMessage('Select a valid category.'),
+    body('project_id')
+        .trim()
+        .notEmpty().withMessage('Project is required.')
+        .bail()
+        .isInt({ min: 1 }).withMessage('Select a valid project.')
+];
+
 const validateProjectFields = [
     body('organization_id')
         .trim()
@@ -67,5 +136,10 @@ export {
     validateCategoryFields,
     validateOrganizationFields,
     validateOrganizationImage,
+    validateRegistrationFields,
+    validateLoginFields,
+    validateCategoryAssignment,
+    validateAuthFields,
+    validateCategoryAssignmentFields,
     validateProjectFields
 };

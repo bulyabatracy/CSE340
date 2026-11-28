@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { validationResult } from 'express-validator';
 import { createUser, getUserByEmail, getAllUsers } from '../models/users.js';
 
 const showRegisterPage = (req, res) => {
@@ -10,12 +11,7 @@ const processRegistration = async (req, res) => {
     const lastName = req.body.lastName?.trim() || '';
     const email = req.body.email?.trim().toLowerCase() || '';
     const password = req.body.password || '';
-    const errors = [];
-
-    if (!firstName) errors.push('First name is required.');
-    if (!lastName) errors.push('Last name is required.');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push('Enter a valid email address.');
-    if (password.length < 8) errors.push('Password must be at least 8 characters.');
+    const errors = validationResult(req).array().map(error => error.msg);
 
     if (errors.length) {
         return res.render('register', { title: 'Register', errors, form: { firstName, lastName, email } });
@@ -43,6 +39,12 @@ const showLoginPage = (req, res) => {
 const processLogin = async (req, res) => {
     const email = req.body.email?.trim().toLowerCase() || '';
     const password = req.body.password || '';
+    const errors = validationResult(req).array().map(error => error.msg);
+
+    if (errors.length) {
+        return res.render('login', { title: 'Login', email, errors });
+    }
+
     const user = await getUserByEmail(email);
 
     if (!user || !(await bcrypt.compare(password, user.password_hash))) {
